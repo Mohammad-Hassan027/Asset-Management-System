@@ -1,0 +1,8 @@
+INDEX VERSION 1.4+C:\Users\SHAIKH\OneDrive\Desktop\Asset Management System\.metadata\.plugins\org.eclipse.wst.jsdt.core\indexes
+1327769292.index
+1075976217.index
+2209215561.index
+1264967448.index
+2957461243.index
+3568330849.index
+4040096234.index
