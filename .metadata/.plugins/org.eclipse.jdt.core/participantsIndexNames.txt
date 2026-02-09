@@ -1,3 +1,0 @@
-INDEX VERSION 1.134
-C:\Users\SHAIKH\OneDrive\Desktop\Asset Management System\.metadata\.plugins\org.eclipse.jst.jsp.core\jspsearch\2957461243.index
-\AssetManagementSystem\src\main\java

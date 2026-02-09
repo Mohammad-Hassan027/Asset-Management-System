@@ -40,6 +40,18 @@
     <% if ("success".equals(request.getParameter("msg"))) { %>
         <div class="alert alert-success">✅ Asset added successfully to the inventory!</div>
     <% } %>
+    
+    <% if ("deleted".equals(request.getParameter("msg"))) { %>
+    <div class="alert" style="background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb;">
+        🗑️ Asset has been removed from the records.
+    </div>
+    <% } %>
+   <% if ("invalid".equals(request.getParameter("msg"))) { %>
+     <div class="alert" style="background:#fff3cd;color:#856404;border:1px solid #ffeeba;">
+       ⚠️ Asset name cannot be empty.
+     </div>
+   <% } %>
+
 
     <div class="card">
         <h3>Register New Asset</h3>
@@ -62,6 +74,14 @@
             <button type="submit">Add to Records</button>
         </form>
     </div>
+    
+    <div class="card" style="margin-top: 20px;">
+    <form action="AssetServlet" method="GET" class="form-row">
+        <input type="text" name="search" placeholder="Search by Asset Name..." value="<%= request.getParameter("search") != null ? request.getParameter("search") : "" %>">
+        <button type="submit" style="background: var(--primary);">🔍 Search</button>
+        <a href="AssetServlet" style="text-decoration: none; padding: 12px; color: #666;">Clear</a>
+    </form>
+</div>
 
     <table>
         <thead>
@@ -70,6 +90,7 @@
                 <th>Asset Name</th>
                 <th>Category</th>
                 <th>Status</th>
+                <th>Actions</th>
             </tr>
         </thead>
         <tbody>
@@ -86,6 +107,13 @@
             <td>
                 <span class="badge <%= statusClass %>"><%= asset.get("status") %></span>
             </td>
+            <td>
+               <form action="AssetServlet" method="POST" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this asset?');">
+                 <input type="hidden" name="action" value="delete">
+                 <input type="hidden" name="assetId" value="<%= asset.get("id") %>">
+                <button type="submit" style="background: #dc3545; padding: 5px 10px; font-size: 0.8em;">Delete</button>
+              </form>
+            </td>
         </tr>
         <% 
                 }
@@ -93,8 +121,13 @@
         %>
         <tr><td colspan="4" style="text-align:center; color: #888;">No assets found. Start by adding one above.</td></tr>
         <% } %>
+        
         </tbody>
     </table>
 </div>
+<p style="text-align:center;color:#777;font-size:0.85em;margin-top:20px;">
+    Asset Management System | Developed by Group 7
+</p>
+
 </body>
 </html>

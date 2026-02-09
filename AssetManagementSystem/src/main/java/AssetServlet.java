@@ -28,6 +28,7 @@ public class AssetServlet extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// List to hold asset records
 	    java.util.List<java.util.Map<String, String>> assetList = new java.util.ArrayList<>();
+	    String searchKeyword = request.getParameter("search");
 	    
 	    try {
 	        // 1. Load MySQL Driver
@@ -37,9 +38,21 @@ public class AssetServlet extends HttpServlet {
 	        java.sql.Connection conn = java.sql.DriverManager.getConnection(
 	            "jdbc:mysql://localhost:3306/AssetDB", "root", "root");
 	        
+	     // Dynamic SQL Query
+	        String sql = "SELECT * FROM assets";
+	        if (searchKeyword != null && !searchKeyword.trim().isEmpty()) {
+	            sql += " WHERE asset_name LIKE ?";
+	        }
+	        
+	        java.sql.PreparedStatement pstmt = conn.prepareStatement(sql);
+	        
+	        if (searchKeyword != null && !searchKeyword.trim().isEmpty()) {
+	            pstmt.setString(1, "%" + searchKeyword + "%");
+	        }
 	        // 3. Execute Query
-	        java.sql.Statement stmt = conn.createStatement();
-	        java.sql.ResultSet rs = stmt.executeQuery("SELECT * FROM assets");
+	        
+	        java.sql.ResultSet rs = pstmt.executeQuery();
+	        
 
 	        while (rs.next()) {
 	            java.util.Map<String, String> asset = new java.util.HashMap<>();
@@ -49,6 +62,9 @@ public class AssetServlet extends HttpServlet {
 	            asset.put("status", rs.getString("status"));
 	            assetList.add(asset);
 	        }
+	        
+	        if (rs != null) rs.close();
+	        if (pstmt != null) pstmt.close();
 	        conn.close();
 	    } catch (Exception e) {
 	        e.printStackTrace();
@@ -64,26 +80,40 @@ public class AssetServlet extends HttpServlet {
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		// 1. Get parameters from the form
-		String name = request.getParameter("assetName");
-	    String category = request.getParameter("category");
-	    String status = request.getParameter("status"); // Capture status from form
-
+		String action = request.getParameter("action");
+	    
 	    try {
 	        Class.forName("com.mysql.cj.jdbc.Driver");
 	        java.sql.Connection conn = java.sql.DriverManager.getConnection("jdbc:mysql://localhost:3306/AssetDB", "root", "root");
 
-	        String sql = "INSERT INTO assets (asset_name, category, status) VALUES (?, ?, ?)";
-	        java.sql.PreparedStatement pstmt = conn.prepareStatement(sql);
-	        pstmt.setString(1, name);
-	        pstmt.setString(2, category);
-	        pstmt.setString(3, status);
+	        if ("delete".equals(action)) {
+	            // DELETE LOGIC
+	            String id = request.getParameter("assetId");
+	            String sql = "DELETE FROM assets WHERE id = ?";
+	            java.sql.PreparedStatement pstmt = conn.prepareStatement(sql);
+	            pstmt.setInt(1, Integer.parseInt(id));
+	            pstmt.executeUpdate();
+	            response.sendRedirect("AssetServlet?msg=deleted");
+	        } else {
+	            // ADD LOGIC
+	            String name = request.getParameter("assetName");
+	            String category = request.getParameter("category");
+	            String status = request.getParameter("status");
+	            
+	            if (name == null || name.trim().isEmpty()) {
+	                response.sendRedirect("AssetServlet?msg=invalid");
+	                return;
+	            }
 
-	        pstmt.executeUpdate();
+	            String sql = "INSERT INTO assets (asset_name, category, status) VALUES (?, ?, ?)";
+	            java.sql.PreparedStatement pstmt = conn.prepareStatement(sql);
+	            pstmt.setString(1, name);
+	            pstmt.setString(2, category);
+	            pstmt.setString(3, status);
+	            pstmt.executeUpdate();
+	            response.sendRedirect("AssetServlet?msg=success");
+	        }
 	        conn.close();
-	        
-	        // Redirect with a success parameter
-	        response.sendRedirect("AssetServlet?msg=success");
 	    } catch (Exception e) {
 	        e.printStackTrace();
 	        response.sendRedirect("AssetServlet?msg=error");

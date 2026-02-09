@@ -1,0 +1,21 @@
+/build/
+.settings/
+.project
+.classpath
+/bin/
+
+# Ignore Eclipse metadata and temp files
+.metadata/
+RemoteSystemsTempFiles/
+.recommenders/
+Servers/
+
+# Ignore build artifacts
+bin/
+build/
+target/
+*.class
+
+# Ignore OS-specific files
+.DS_Store
+Thumbs.db
